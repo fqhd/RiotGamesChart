@@ -1,0 +1,28 @@
+{
+  "name": "riotgameschart",
+  "version": "1.0.0",
+  "description": "Project which holds information about riot games playerbase through riotgames API for a charting application",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fqhd/RiotGamesChart.git"
+  },
+  "keywords": [
+    "riotgames",
+    "chartjs",
+    "express",
+    "node"
+  ],
+  "author": "Fahd",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fqhd/RiotGamesChart/issues"
+  },
+  "homepage": "https://github.com/fqhd/RiotGamesChart#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
+}
