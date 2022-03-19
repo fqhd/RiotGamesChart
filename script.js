@@ -7,10 +7,10 @@ async function main(){
     const database = await response.json();
 
     // Charts
-    chartData(database.playerData);
+    chartGamesPerRank(database.playerData);
 }
 
-function chartData(data){
+function chartGamesPerRank(data){
     const canvas = document.createElement('canvas');
     canvas.width = 300;
     canvas.height = 100;
