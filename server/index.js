@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import fs from 'fs';
 dotenv.config();
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
 const TIMEOUT = 100;
@@ -37,3 +38,17 @@ async function getPlayerData(){
     return totalPlayerData;
 }
 
+async function main(){
+    // Fetch all data
+    const playerData = await getPlayerData();
+    
+    // Construct databse json object
+    const database = {
+        playerData
+    };
+
+    // Save databse to file
+    fs.writeFileSync('../database.json', JSON.stringify(database));
+}
+
+main();
