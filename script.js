@@ -1,9 +1,13 @@
-fetchDatabase();
+const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
 
-async function fetchDatabase(){
+main();
+
+async function main(){
     const response = await fetch('database.json');
     const database = await response.json();
-    console.log(database);
+
+    // Charts
+    chartData(database.playerData);
 }
 
 function chartData(data){
