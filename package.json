@@ -1,8 +1,8 @@
 {
   "name": "riotgameschart",
   "version": "1.0.0",
-  "description": "Project which holds information about riot games playerbase through riotgames API for a charting application",
-  "main": "script.js",
+  "description": "A static website which gathers information about players from the riot games API and plots every player and their rank on a chart using the chart.js library. This is meant to see how the ranks of players changes as games played increase.",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,19 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/fqhd/RiotGamesChart.git"
   },
-  "keywords": [
-    "riotgames",
-    "chartjs",
-    "express",
-    "node"
-  ],
-  "author": "Fahd",
-  "license": "MIT",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/fqhd/RiotGamesChart/issues"
   },
   "homepage": "https://github.com/fqhd/RiotGamesChart#readme",
   "dependencies": {
-    "express": "^4.17.3"
+    "dotenv": "^16.0.0",
+    "node-fetch": "^3.2.3"
   }
 }
