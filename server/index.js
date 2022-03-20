@@ -40,7 +40,7 @@ async function getAccountLevelPerRank(){
         const response = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${TIERS[i]}/I?page=1&api_key=${process.env.RIOT_KEY}`);
         const json = await response.json();
         let averageLevel = 0;
-        for(let i = 0; i < json.length; i++){
+        for(let i = 0; i < 20; i++){
             const player = json[i];
             const accountID = player.summonerId;
             const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`);
@@ -48,7 +48,7 @@ async function getAccountLevelPerRank(){
             const accountLevel = jsonAccountInfo.summonerLevel;
             averageLevel += accountLevel;
         }
-        averageLevel /= json.length;
+        averageLevel /= 20;
         data.push(averageLevel);
     }
     return data;
@@ -56,10 +56,10 @@ async function getAccountLevelPerRank(){
 
 async function main(){
     // Fetch all data
-    // const numGamesPerRank = await getNumGamesPerRank();
-    const numGamesPerRank = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    // const accountLevelsPerRank = await getAccountLevelPerRank();
-    const accountLevelsPerRank = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const numGamesPerRank = await getNumGamesPerRank();
+    // const numGamesPerRank = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const accountLevelsPerRank = await getAccountLevelPerRank();
+    // const accountLevelsPerRank = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     
     // Construct databse json object
     const database = {
