@@ -55,19 +55,22 @@ async function getAccountLevelPerRank(){
 }
 
 async function main(){
-    // Fetch all data
-    const numGamesPerRank = await getNumGamesPerRank();
-    // const numGamesPerRank = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    const accountLevelsPerRank = await getAccountLevelPerRank();
-    // const accountLevelsPerRank = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    
-    // Construct databse json object
-    const database = {
-        numGamesPerRank,
-        accountLevelsPerRank
-    };
+    const string = fs.readFileSync('../database.json');
+    const database = JSON.parse(string);
 
-    // Save databse to file
+    if(!database.numGamesPerRank){
+        database.numGamesPerRank = await getNumGamesPerRank().catch(err => {
+            console.log('failed to fetch number of games per rank');
+            console.log(err);
+        });
+    }
+    if(!database.accountLevelsPerRank){
+        database.accountLevelsPerRank = await getAccountLevelPerRank().catch(err => {
+            console.log('failed to fetch account levels per rank')
+            console.error(err);
+        })
+    }
+    
     fs.writeFileSync('../database.json', JSON.stringify(database));
 }
 
