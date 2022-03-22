@@ -8,11 +8,12 @@ async function main(){
     const database = await response.json();
 
     // Charts
-    chartGamesPerRank(database.numGamesPerRank);
-    chartAccountLevelPerRank(database.accountLevelsPerRank);
+    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank');
+    chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank');
+    chartDonut(database.gameModeDistribution.silver, 'Game Mode Distribution');
 }
 
-function chartGamesPerRank(data){
+function chartLine(data, title){
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     new Chart(ctx, {
@@ -20,7 +21,7 @@ function chartGamesPerRank(data){
         data: {
             labels: TIERS,
             datasets: [{
-                label: 'Average Games Played Per Rank',
+                label: title,
                 data: data,
                 backgroundColor: [
                     'rgba(255, 99, 132, 1)',
@@ -35,21 +36,31 @@ function chartGamesPerRank(data){
     charts.appendChild(canvas);
 }
 
-function chartAccountLevelPerRank(data){
+function chartDonut(data, title){
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     new Chart(ctx, {
-        type: 'line',
+        type: 'doughnut',
         data: {
-            labels: TIERS,
+            labels: ['Ranked Solo/Duo', 'Normal Draft', 'Normal Blind', 'ARAM', 'Ranked Flex', 'Other'],
             datasets: [{
-                label: 'Average Account Level Per Rank',
-                data: data,
+                label: title,
+                data: [0, 0, 0, 1, 0, 0],
                 backgroundColor: [
-                    'rgba(255, 99, 132, 1)',
+                    '#D7263D',
+                    '#02182B',
+                    '#0197F6',
+                    '#448FA3',
+                    '#68C5DB',
+                    '#CEECF3',
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
+                    '#D7263D',
+                    '#02182B',
+                    '#0197F6',
+                    '#448FA3',
+                    '#68C5DB',
+                    '#CEECF3',
                 ],
                 borderWidth: 1
             }]
