@@ -119,23 +119,23 @@ async function main(){
             console.error(err);
         });
     }
-    
-    fs.writeFileSync('../database.json', JSON.stringify(database));
 
     await fetchDataForMatches();
 
-    if(!database.gameDistribution){
+    if(!database.gameModeDistribution){
         // Create array for each tier
-        database.gameDistribution = {};
+        database.gameModeDistribution = {};
         TIERS.forEach(tier => {
-            database.gameDistribution[tier.toLowerCase()] = [];
+            database.gameModeDistribution[tier.toLowerCase()] = [];
             const matches = matchesData[tier.toLowerCase()];
             const obj = getMatchDataFromArray(matches);
             for(const e in obj){
-                database.gameDistribution[tier.toLowerCase()].push(obj[e]);
+                database.gameModeDistribution[tier.toLowerCase()].push(obj[e]);
             }
         });
     }
+
+    fs.writeFileSync('../database.json', JSON.stringify(database));
 }
 
 function getMatchDataFromArray(matches){
