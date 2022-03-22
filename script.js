@@ -10,11 +10,14 @@ async function main(){
     // Charts
     chartLine(database.numGamesPerRank, 'Average Games Played Per Rank');
     chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank');
-    chartDonut(database.gameModeDistribution.silver, 'Game Mode Distribution');
+    for(const tier in database.gameModeDistribution){
+        chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
+    }
 }
 
 function chartLine(data, title){
     const canvas = document.createElement('canvas');
+    canvas.style.marginTop = '75px';
     const ctx = canvas.getContext('2d');
     new Chart(ctx, {
         type: 'line',
@@ -38,13 +41,13 @@ function chartLine(data, title){
 
 function chartDonut(data, title){
     const canvas = document.createElement('canvas');
+    canvas.style.marginTop = '75px';
     const ctx = canvas.getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Ranked Solo/Duo', 'Normal Draft', 'Normal Blind', 'ARAM', 'Ranked Flex', 'Other'],
             datasets: [{
-                label: title,
                 data: data,
                 backgroundColor: [
                     '#D7263D',
@@ -64,6 +67,17 @@ function chartDonut(data, title){
                 ],
                 borderWidth: 1
             }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size:  18
+                    }
+                },
+            }
         }
     });
     charts.appendChild(canvas);
