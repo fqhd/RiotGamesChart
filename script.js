@@ -45,7 +45,7 @@ function chartDonut(data, title){
             labels: ['Ranked Solo/Duo', 'Normal Draft', 'Normal Blind', 'ARAM', 'Ranked Flex', 'Other'],
             datasets: [{
                 label: title,
-                data: [0, 0, 0, 1, 0, 0],
+                data: data,
                 backgroundColor: [
                     '#D7263D',
                     '#02182B',
