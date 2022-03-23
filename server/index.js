@@ -3,17 +3,8 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 dotenv.config();
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
-const TIMEOUT = 1500;
+const TIMEOUT = 100;
 let matchesData = {};
-matchesData.iron = [];
-matchesData.bronze = [];
-matchesData.silver = [];
-matchesData.gold = [];
-matchesData.platinum = [];
-matchesData.diamond = [];
-matchesData.master = [];
-matchesData.grandmaster = [];
-matchesData.challenger = [];
 let playerData = {};
 
 function apiCall(url){
@@ -38,18 +29,18 @@ async function getRankData(tier){
 }
 
 async function loadPlayers(){
+    addRanksToObject(playerData);
     for(let i = 0; i < TIERS.length; i++){
         const response = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${TIERS[i]}/I?page=1&api_key=${process.env.RIOT_KEY}`);
         const players = await response.json();
-        playerData[TIERS[i].toLowerCase()] = [];
-        for(let j = 0; j < players.length; j++){
+        for(let j = 0; j < 1; j++){
             const accountID = players[j].summonerId;
             const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`);
             const accountInfo = await accInfoResponse.json();
             playerData[TIERS[i].toLowerCase()].push(accountInfo);
         }
     }
-    playerData.numPlayers = playerData[TIERS[0].toLowerCase()].length;
+    playerData.numPlayers = 1;
 }
 
 async function getNumGamesPerRank(){
@@ -76,6 +67,7 @@ async function getAccountLevelPerRank(){
 }
 
 async function fetchDataForMatches(){
+    addRanksToObject(matchesData);
     for(let i = 0; i < TIERS.length; i++){ // Loop through tiers
         for(let j = 0; j < playerData.numPlayers; j++){
             const player = playerData[TIERS[i].toLowerCase()][j];
@@ -108,18 +100,64 @@ async function main(){
     await loadPlayers();
     await fetchDataForMatches();
 
-    database.numGamesPerRank = await getNumGamesPerRank().catch(err => {
-        console.log('failed to fetch number of games per rank');
-        console.log(err);
-    });
-    database.accountLevelsPerRank = await getAccountLevelPerRank().catch(err => {
-        console.log('failed to fetch account levels per rank');
-        console.error(err);
-    });
-
-    database.gameModeDistribution = calcGameModeDistribution();
+    if(!database.numGamesPerRank){
+        database.numGamesPerRank = await getNumGamesPerRank().catch(err => {
+            console.log('failed to fetch number of games per rank');
+            console.log(err);
+        });
+    }
+    if(!database.accountLevelsPerRank){
+        database.accountLevelsPerRank = await getAccountLevelPerRank().catch(err => {
+            console.log('failed to fetch account levels per rank');
+            console.error(err);
+        });
+    }
+    if(!database.gameModeDistribution){
+        database.gameModeDistribution = calcGameModeDistribution();
+    }
+    if(!database.averageStatsPerRank){
+        database.averageStatsPerRank = calcAverageStatsPerRank();
+    }
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
+}
+
+function calcAverageStatsPerRank(){
+    const statsPerRank = {};
+    TIERS.forEach(tier => {
+        statsPerRank[tier] = calcAverageDataInTier(tier);
+    });
+    return statsPerRank;
+}
+
+function calcAverageDataInTier(tier){
+    const matchArray = matchesData[tier.toLowerCase()];
+    const averageObject = {
+        duration: 0,
+        barons: 0,
+        dragons: 0,
+        gold: 0,
+        kills: 0,
+    };
+    matchArray.forEach(match => {
+        averageObject.duration += match.duration;
+        averageObject.barons += match.barons;
+        averageObject.dragons += match.dragons;
+        averageObject.gold += match.gold;
+        averageObject.kills += match.kills;
+    });
+    averageObject.duration /= matchArray.length;
+    averageObject.barons /= matchArray.length;
+    averageObject.dragons /= matchArray.length;
+    averageObject.gold /= matchArray.length;
+    averageObject.kills /= matchArray.length;
+    return averageObject;
+}
+
+function addRanksToObject(obj){
+    TIERS.forEach(tier => {
+        obj[tier.toLowerCase()] = [];
+    });
 }
 
 function calcGameModeDistribution(){
