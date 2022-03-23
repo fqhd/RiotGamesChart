@@ -71,23 +71,19 @@ async function fetchDataForMatches(){
     for(let i = 0; i < TIERS.length; i++){ // Loop through tiers
         for(let j = 0; j < playerData.numPlayers; j++){
             const player = playerData[TIERS[i].toLowerCase()][j];
-            const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`).catch(err => console.log('failed to fetch data'));
+            const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`).catch(err => console.error('failed to fetch data'));
             const matches = await matchesResponse.json();
             const matchID = matches[0];
             const matchResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${process.env.RIOT_KEY}`);
             const match = await matchResponse.json();
             const gameMode = getMatchType(match);
             const duration = match.info.gameDuration;
-            const { barons, dragons, gold, kills, teamWithFirstBlood, winningTeam } = getDataAboutGame(match);
+            const teamData = getTeamData(match);
             matchesData[TIERS[i].toLowerCase()].push({
                 gameMode,
                 duration,
-                barons,
-                dragons,
-                gold,
-                kills,
-                teamWithFirstBlood,
-                winningTeam
+                team1: teamData['red'],
+                team2: teamData['blue'],
             });
         }
     }
@@ -99,16 +95,17 @@ async function main(){
 
     await loadPlayers();
     await fetchDataForMatches();
+    console.log(matchesData);
 
     if(!database.numGamesPerRank){
         database.numGamesPerRank = await getNumGamesPerRank().catch(err => {
-            console.log('failed to fetch number of games per rank');
-            console.log(err);
+            console.error('failed to fetch number of games per rank');
+            console.error(err);
         });
     }
     if(!database.accountLevelsPerRank){
         database.accountLevelsPerRank = await getAccountLevelPerRank().catch(err => {
-            console.log('failed to fetch account levels per rank');
+            console.error('failed to fetch account levels per rank');
             console.error(err);
         });
     }
@@ -116,42 +113,76 @@ async function main(){
         database.gameModeDistribution = calcGameModeDistribution();
     }
     if(!database.averageStatsPerRank){
-        database.averageStatsPerRank = calcAverageStatsPerRank();
+        database.averageStatsPerRank = calcStatsPerRank();
     }
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
 }
 
-function calcAverageStatsPerRank(){
-    const statsPerRank = {};
+function calcStatsPerRank(){
+    const statsPerRank = {
+        duration: [],
+        baron: [],
+        dragons: [],
+        gold: [],
+        kills: [],
+        visionScore: [],
+        wardsPlaced: [],
+        wardsKilled: [],
+        towers: [],
+    };
     TIERS.forEach(tier => {
-        statsPerRank[tier] = calcAverageDataInTier(tier);
+        const data = calcDataInTier(tier);
+        statsPerRank.duration.push(data.duration);
+        statsPerRank.baron.push(data.baron);
+        statsPerRank.gold.push(data.gold);
+        statsPerRank.kills.push(data.kills);
+        statsPerRank.visionScore.push(data.visionScore);
+        statsPerRank.wardsPlaced.push(data.wardsPlaced);
+        statsPerRank.wardsKilled.push(data.wardsKilled);
+        statsPerRank.towers.push(data.towers);
     });
     return statsPerRank;
 }
 
-function calcAverageDataInTier(tier){
+function calcDataInTier(tier){
     const matchArray = matchesData[tier.toLowerCase()];
-    const averageObject = {
-        duration: 0,
-        barons: 0,
-        dragons: 0,
-        gold: 0,
-        kills: 0,
-    };
+    let duration = 0;
+    let barons = 0;
+    let dragons = 0;
+    let gold = 0;
+    let kills = 0;
+    let visionScore = 0;
+    let wardsPlaced = 0;
+    let wardsKilled = 0;
+    let towers = 0;
+
     matchArray.forEach(match => {
-        averageObject.duration += match.duration;
-        averageObject.barons += match.barons;
-        averageObject.dragons += match.dragons;
-        averageObject.gold += match.gold;
-        averageObject.kills += match.kills;
+        duration += match.duration;
+        ['red', 'blue'].forEach(t => {
+            barons += match[t].barons;
+            dragons += match[t].dragons;
+            gold += match[t].gold;
+            kills += match[t].kills;
+            visionScore += match[t].visionScore;
+            wardsPlaced += match[t].wardsPlaced;
+            wardsKilled += match[t].wardsKilled;
+            towers += match[t].towers;
+        });
     });
-    averageObject.duration /= matchArray.length;
-    averageObject.barons /= matchArray.length;
-    averageObject.dragons /= matchArray.length;
-    averageObject.gold /= matchArray.length;
-    averageObject.kills /= matchArray.length;
-    return averageObject;
+
+    duration /= matchArray.length;
+    barons /= matchArray.length;
+    dragons /= matchArray.length;
+    gold /= matchArray.length;
+    kills /= matchArray.length;
+    duration /= matchArray.length;
+    barons /= matchArray.length;
+    dragons /= matchArray.length;
+    gold /= matchArray.length;
+    kills /= matchArray.length;
+
+    return [duration, barons, dragons, gold, kills, duration, ];
 }
 
 function addRanksToObject(obj){
@@ -212,29 +243,44 @@ function getMatchDataFromArray(matches){
     };
 }
 
-function getDataAboutGame(match){
-    let barons = 0;
-    let dragons = 0;
-    let gold = 0;
-    let kills = 0;
-    let teamWithFirstBlood = 0;
-    let winningTeam = 0;
+function teamIDtoName(id){
+    if(id == 100) return 'red';
+    return 'blue';
+}
 
+function getTeamData(match){
+    const teams = {};
+
+    // Getting team data from array of teams themselves
+    
+    for(let i = 0; i < match.info.teams.length; i++){
+        const teamID = teamIDtoName(match.info.teams[i].teamId);
+        teams[teamID] = {
+            barons: match.info.teams[i].objectives.baron.kills,
+            dragons: match.info.teams[i].objectives.dragon.kills,
+            kills: match.info.teams[i].objectives.champion.kills,
+            firstBlood: match.info.teams[i].objectives.champion.first,
+            towers: match.info.teams[i].objectives.tower.kills,
+            firstTower: match.info.teams[i].objectives.tower.first,
+            win: match.info.teams[i].win,
+            id: teamID,
+            gold: 0,
+            wardsPlaced: 0,
+            wardsKilled: 0,
+            visionScore: 0,
+        };
+    }
+
+    // Getting additional data from list of players and inserting the data into the corresponding team
     match.info.participants.forEach(p => {
-        if(p.firstBloodKill){
-            teamWithFirstBlood = p.teamId;
-        }
-        if(p.win){
-            winningTeam = p.teamId;
-        }
-        kills += p.kills;
-        gold += p.goldEarned;
-        dragons += p.dragonKills;
-        barons = p.baronKills;
+        const playerTeamID = teamIDtoName(p.teamId);
+        teams[playerTeamID].gold += p.goldEarned;
+        teams[playerTeamID].wardsPlaced += p.wardsPlaced;
+        teams[playerTeamID].wardsKilled += p.wardsKilled;
+        teams[playerTeamID].visionScore += p.visionScore;
     });
-    return {
-        barons, dragons, gold, kills, teamWithFirstBlood, winningTeam
-    };
+
+    return teams;
 }
 
 function getMatchType(match){
