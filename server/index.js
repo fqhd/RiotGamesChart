@@ -50,7 +50,6 @@ async function loadPlayers(){
         }
     }
     playerData.numPlayers = playerData[TIERS[0].toLowerCase()].length;
-    console.log('Num players per rank: ' + playerData.numPlayers);
 }
 
 async function getNumGamesPerRank(){
@@ -66,11 +65,11 @@ async function getAccountLevelPerRank(){
     const data = [];
     for(let i = 0; i < TIERS.length; i++){
         let averageLevel = 0;
-        for(let j = 0; j < playerData[TIERS[i].toLowerCase()].length; j++){
+        for(let j = 0; j < playerData.numPlayers; j++){
             const accountLevel = playerData[TIERS[i].toLowerCase()][j].summonerLevel;
             averageLevel += accountLevel;
         }
-        averageLevel /= 20;
+        averageLevel /= playerData.numPlayers;
         data.push(averageLevel);
     }
     return data;
@@ -78,7 +77,7 @@ async function getAccountLevelPerRank(){
 
 async function fetchDataForMatches(){
     for(let i = 0; i < TIERS.length; i++){ // Loop through tiers
-        for(let j = 0; j < playerData[TIERS[i].toLowerCase()].length; j++){
+        for(let j = 0; j < playerData.numPlayers; j++){
             const player = playerData[TIERS[i].toLowerCase()][j];
             const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`).catch(err => console.log('failed to fetch data'));
             const matches = await matchesResponse.json();

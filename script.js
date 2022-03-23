@@ -1,5 +1,7 @@
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
-const charts = document.getElementById('charts');
+const col1 = document.getElementById('col-1');
+const col2 = document.getElementById('col-2');
+let currentColumn = 0;
 
 main();
 
@@ -12,6 +14,17 @@ async function main(){
     chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank', 'Average Level');
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
+    }
+}
+
+function appendToHTML(element){
+    currentColumn++;
+    if(currentColumn % 2){
+        // Append to column 1
+        col1.appendChild(element);
+    }else{
+        // Append to column 2
+        col2.appendChild(element);
     }
 }
 
@@ -47,12 +60,12 @@ function chartLine(data, title, label){
             }
         }
     });
-    charts.appendChild(canvas);
+    appendToHTML(canvas);
 }
 
 function chartDonut(data, title){
     const canvas = document.createElement('canvas');
-    canvas.style.marginTop = '75px';
+    canvas.style.marginTop = '70px';
     const ctx = canvas.getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
@@ -91,5 +104,5 @@ function chartDonut(data, title){
             }
         }
     });
-    charts.appendChild(canvas);
+    appendToHTML(canvas);
 }
