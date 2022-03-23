@@ -8,14 +8,14 @@ async function main(){
     const database = await response.json();
 
     // Charts
-    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank');
-    chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank');
+    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank', 'Average Rank');
+    chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank', 'Average Level');
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
     }
 }
 
-function chartLine(data, title){
+function chartLine(data, title, label){
     const canvas = document.createElement('canvas');
     canvas.style.marginTop = '75px';
     const ctx = canvas.getContext('2d');
@@ -24,7 +24,7 @@ function chartLine(data, title){
         data: {
             labels: TIERS,
             datasets: [{
-                label: title,
+                label: label,
                 data: data,
                 backgroundColor: [
                     'rgba(255, 99, 132, 1)',
@@ -34,6 +34,17 @@ function chartLine(data, title){
                 ],
                 borderWidth: 1
             }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size:  18
+                    }
+                },
+            }
         }
     });
     charts.appendChild(canvas);
