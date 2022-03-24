@@ -114,7 +114,7 @@ async function main(){
     // if(!database.averageStatsPerRank){
         database.averageStatsPerRank = calcStatsPerRank();
     // }
-    console.log(database.averageStatsPerRank);
+    // console.log(database.averageStatsPerRank);
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
 }
@@ -124,16 +124,37 @@ function calcStatsPerRank(){
     
     for(let i = 0; i < TIERS.length; i++){
         const data = calcDataInTier(TIERS[i]);
-        for(let j = 0; j < data.length; j++){
-            if(!statsPerRank[j]){
-                statsPerRank[j] = [];
+        statsPerRank.push(data);
+    }
+    
+    // Normalizing the data
+    
+    // Calculate maximum array
+    const maxArray = [];
+
+    for(let i = 0; i < statsPerRank.length; i++){
+        for(let j = 0; j < statsPerRank[0].length; j++){
+            if(!maxArray[j]){
+                maxArray.push(statsPerRank[i][j]);
+            }else{
+                if(statsPerRank[i][j] > maxArray[j]){
+                    maxArray[j] = statsPerRank[i][j];
+                }
             }
-            statsPerRank[j].push(data[j]);
         }
     }
 
+    statsPerRank.forEach(stats => {
+        for(let i = 0; i < stats.length; i++){
+            stats[i] /= maxArray[i];
+        }
+    });
+
+    console.log(statsPerRank);
+
     return statsPerRank;
 }
+
 
 function calcDataInTier(tier){
     const matchArray = matchesData[tier.toLowerCase()];
