@@ -1,6 +1,7 @@
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
-const col1 = document.getElementById('col-1');
-const col2 = document.getElementById('col-2');
+const c1 = document.getElementById('c1');
+const c2 = document.getElementById('c2');
+const c3 = document.getElementById('c3');
 let currentColumn = 0;
 
 main();
@@ -10,8 +11,8 @@ async function main(){
     const database = await response.json();
 
     // Charts
-    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank', 'Average Rank');
-    chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank', 'Average Level');
+    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank', 'Average Rank', document.getElementById('col-1'));
+    chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank', 'Average Level', document.getElementById('col-2'));
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
     }
@@ -19,17 +20,10 @@ async function main(){
 }
 
 function appendToHTML(element){
-    currentColumn++;
-    if(currentColumn % 2){
-        // Append to column 1
-        col1.appendChild(element);
-    }else{
-        // Append to column 2
-        col2.appendChild(element);
-    }
+    
 }
 
-function chartLine(data, title, label){
+function chartLine(data, title, label, e){
     const canvas = document.createElement('canvas');
     canvas.style.marginTop = '75px';
     const ctx = canvas.getContext('2d');
@@ -61,7 +55,7 @@ function chartLine(data, title, label){
             }
         }
     });
-    appendToHTML(canvas);
+    e.appendChild(canvas);
 }
 
 function chartArea(datasets, title){
