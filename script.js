@@ -20,7 +20,15 @@ async function main(){
 }
 
 function appendToHTML(element){
-    
+    const index = currentColumn % 3;
+    if(index == 0){
+        c1.appendChild(element);
+    }else if(index == 1){
+        c2.appendChild(element);
+    }else{
+        c3.appendChild(element);
+    }
+    currentColumn++;
 }
 
 function chartLine(data, title, label, e){

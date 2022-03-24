@@ -4,6 +4,11 @@ h1 {
 
 main {
     display: flex;
+    flex-flow: column nowrap;
+}
+
+#banner {
+    display: flex;
     flex-flow: row nowrap;
 }
 
@@ -19,3 +24,25 @@ main {
     margin-left: 2.5%;
 }
 
+#c1 {
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+    width: 45%;
+}
+
+#c2 {
+    width: 45%;
+    margin-right: 2.5%;
+    margin-left: 2.5%;
+}
+
+#c3 {
+    width: 45%;
+    margin-right: 2.5%;
+    margin-left: 2.5%;
+}
+
+#detail-charts {
+    display: flex;
+    flex-flow: row nowrap;
+}
