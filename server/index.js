@@ -111,37 +111,27 @@ async function main(){
     if(!database.gameModeDistribution){
         database.gameModeDistribution = calcGameModeDistribution();
     }
-    if(!database.averageStatsPerRank){
+    // if(!database.averageStatsPerRank){
         database.averageStatsPerRank = calcStatsPerRank();
-    }
+    // }
+    console.log(database.averageStatsPerRank);
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
 }
 
 function calcStatsPerRank(){
-    const statsPerRank = {
-        duration: [],
-        barons: [],
-        dragons: [],
-        gold: [],
-        kills: [],
-        visionScore: [],
-        wardsPlaced: [],
-        wardsKilled: [],
-        towers: [],
-    };
-    TIERS.forEach(tier => {
-        const data = calcDataInTier(tier);
-        statsPerRank.duration.push(data.duration);
-        statsPerRank.dragons.push(data.dragons);
-        statsPerRank.barons.push(data.barons);
-        statsPerRank.gold.push(data.gold);
-        statsPerRank.kills.push(data.kills);
-        statsPerRank.visionScore.push(data.visionScore);
-        statsPerRank.wardsPlaced.push(data.wardsPlaced);
-        statsPerRank.wardsKilled.push(data.wardsKilled);
-        statsPerRank.towers.push(data.towers);
-    });
+    const statsPerRank = [];
+    
+    for(let i = 0; i < TIERS.length; i++){
+        const data = calcDataInTier(TIERS[i]);
+        for(let j = 0; j < data.length; j++){
+            if(!statsPerRank[j]){
+                statsPerRank[j] = [];
+            }
+            statsPerRank[j].push(data[j]);
+        }
+    }
+
     return statsPerRank;
 }
 
@@ -181,7 +171,7 @@ function calcDataInTier(tier){
     wardsKilled /= matchArray.length;
     towers /= matchArray.length;
 
-    return {duration, barons, dragons, gold, kills, visionScore, wardsPlaced, wardsKilled, towers };
+    return [ duration, barons, dragons, gold, kills, visionScore, wardsPlaced, wardsKilled, towers ];
 }
 
 function addRanksToObject(obj){
