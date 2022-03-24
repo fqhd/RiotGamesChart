@@ -15,6 +15,7 @@ async function main(){
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
     }
+    chartArea(database.averageStatsPerRank, 'Match Data');
 }
 
 function appendToHTML(element){
@@ -63,28 +64,39 @@ function chartLine(data, title, label){
     appendToHTML(canvas);
 }
 
-function chartArea(datasets, labels, title){
+function chartArea(datasets, title){
     const canvas = document.createElement('canvas');
     canvas.style.marginTop = '70px';
     const ctx = canvas.getContext('2d');
     const chartDatasets = [];
+    const colors = [
+        '#543324',
+        '#a0603c',
+        '#526468',
+        '#a86c2d',
+        '#0bc45c',
+        '#131085',
+        '#ea2af9',
+        '#fb2527',
+        '#face6b',
+    ];
     for(let i = 0; i < datasets.length; i++){
         chartDatasets.push({
             data: datasets[i],
-            label: labels[i],
+            label: TIERS[i],
             fill: true,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgb(255, 99, 132)',
-            pointBackgroundColor: 'rgb(255, 99, 132)',
+            backgroundColor: colors[i] + '4F',
+            borderColor: colors[i],
+            pointBackgroundColor: colors[i],
             pointBorderColor: '#fff',
             pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(255, 99, 132)',
+            pointHoverBorderColor: colors[i],
         });
     }
     new Chart(ctx, {
-        type: 'doughnut',
+        type: 'radar',
         data: {
-            labels: TIERS,
+            labels: ['duration', 'barons', 'dragons', 'gold', 'kills', 'visionScore', 'wardsPlaced', 'wardsKilled', 'towers'],
             datasets: chartDatasets
         },
         options: {
