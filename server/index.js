@@ -82,8 +82,8 @@ async function fetchDataForMatches(){
             matchesData[TIERS[i].toLowerCase()].push({
                 gameMode,
                 duration,
-                team1: teamData['red'],
-                team2: teamData['blue'],
+                'red': teamData['red'],
+                'blue': teamData['blue'],
             });
         }
     }
@@ -95,7 +95,6 @@ async function main(){
 
     await loadPlayers();
     await fetchDataForMatches();
-    console.log(matchesData);
 
     if(!database.numGamesPerRank){
         database.numGamesPerRank = await getNumGamesPerRank().catch(err => {
@@ -122,7 +121,7 @@ async function main(){
 function calcStatsPerRank(){
     const statsPerRank = {
         duration: [],
-        baron: [],
+        barons: [],
         dragons: [],
         gold: [],
         kills: [],
@@ -134,7 +133,8 @@ function calcStatsPerRank(){
     TIERS.forEach(tier => {
         const data = calcDataInTier(tier);
         statsPerRank.duration.push(data.duration);
-        statsPerRank.baron.push(data.baron);
+        statsPerRank.dragons.push(data.dragons);
+        statsPerRank.barons.push(data.barons);
         statsPerRank.gold.push(data.gold);
         statsPerRank.kills.push(data.kills);
         statsPerRank.visionScore.push(data.visionScore);
@@ -176,13 +176,12 @@ function calcDataInTier(tier){
     dragons /= matchArray.length;
     gold /= matchArray.length;
     kills /= matchArray.length;
-    duration /= matchArray.length;
-    barons /= matchArray.length;
-    dragons /= matchArray.length;
-    gold /= matchArray.length;
-    kills /= matchArray.length;
+    visionScore /= matchArray.length;
+    wardsPlaced /= matchArray.length;
+    wardsKilled /= matchArray.length;
+    towers /= matchArray.length;
 
-    return [duration, barons, dragons, gold, kills, duration, ];
+    return {duration, barons, dragons, gold, kills, visionScore, wardsPlaced, wardsKilled, towers };
 }
 
 function addRanksToObject(obj){
