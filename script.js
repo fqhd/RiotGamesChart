@@ -63,6 +63,45 @@ function chartLine(data, title, label){
     appendToHTML(canvas);
 }
 
+function chartArea(datasets, labels, title){
+    const canvas = document.createElement('canvas');
+    canvas.style.marginTop = '70px';
+    const ctx = canvas.getContext('2d');
+    const chartDatasets = [];
+    for(let i = 0; i < datasets.length; i++){
+        chartDatasets.push({
+            data: datasets[i],
+            label: labels[i],
+            fill: true,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgb(255, 99, 132)',
+            pointBackgroundColor: 'rgb(255, 99, 132)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(255, 99, 132)',
+        });
+    }
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: TIERS,
+            datasets: chartDatasets
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size:  18
+                    }
+                },
+            }
+        }
+    });
+    appendToHTML(canvas);
+}
+
 function chartDonut(data, title){
     const canvas = document.createElement('canvas');
     canvas.style.marginTop = '70px';
