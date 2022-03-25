@@ -141,17 +141,10 @@ function calcStatsPerRank(){
     }
 
     // Normalizing the data
-    
-    // Calculate maximum array
-    const maxArray = [];
-
-    for(let i = 0; i < stats.length; i++){
-        maxArray.push(Math.max(...stats[i]));
-    }
-
     stats.forEach(stat => {
+        const highestNum = Math.max(...stat);
         for(let i = 0; i < stat.length; i++){
-            stat[i] /= maxArray[i];
+            stat[i] /= highestNum;
         }
     });
 
