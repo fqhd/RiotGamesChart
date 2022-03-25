@@ -46,3 +46,8 @@ main {
     display: flex;
     flex-flow: row nowrap;
 }
+
+#ingame-stats {
+    margin-left: 7.5%;
+    margin-right: 7.5%;
+}

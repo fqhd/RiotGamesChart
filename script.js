@@ -16,7 +16,7 @@ async function main(){
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
     }
-    chartArea(database.averageStatsPerRank, 'Match Data');
+    chartMultipleLines(database.averageStatsPerRank, 'Match Data', document.getElementById('ingame-stats'));
 }
 
 function appendToHTML(element){
@@ -66,7 +66,7 @@ function chartLine(data, title, label, e){
     e.appendChild(canvas);
 }
 
-function chartArea(datasets, title){
+function chartMultipleLines(datasets, title, element){
     const canvas = document.createElement('canvas');
     canvas.style.marginTop = '70px';
     const ctx = canvas.getContext('2d');
@@ -82,23 +82,24 @@ function chartArea(datasets, title){
         '#fb2527',
         '#face6b',
     ];
+    const datasetLabels = [ 'duration', 'barons', 'dragons', 'gold', 'kills', 'visionScore', 'wardsPlaced', 'wardsKilled', 'towers' ];
     for(let i = 0; i < datasets.length; i++){
         chartDatasets.push({
             data: datasets[i],
-            label: TIERS[i],
-            fill: true,
-            backgroundColor: colors[i] + '4F',
+            label: datasetLabels[i],
+            fill: false,
+            backgroundColor: colors[i],
             borderColor: colors[i],
             pointBackgroundColor: colors[i],
-            pointBorderColor: '#fff',
+            pointBorderColor: colors[i],
             pointHoverBackgroundColor: '#fff',
             pointHoverBorderColor: colors[i],
         });
     }
     new Chart(ctx, {
-        type: 'radar',
+        type: 'line',
         data: {
-            labels: ['duration', 'barons', 'dragons', 'gold', 'kills', 'visionScore', 'wardsPlaced', 'wardsKilled', 'towers'],
+            labels: TIERS,
             datasets: chartDatasets
         },
         options: {
@@ -113,7 +114,7 @@ function chartArea(datasets, title){
             }
         }
     });
-    appendToHTML(canvas);
+    element.appendChild(canvas);
 }
 
 function chartDonut(data, title){
