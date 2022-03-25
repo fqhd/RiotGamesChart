@@ -168,7 +168,10 @@ function calcDataInTier(tier){
     let wardsKilled = 0;
     let towers = 0;
 
+    let numRankedGames = 0;
     matchArray.forEach(match => {
+        if(match.gameMode != 'Ranked Solo/Duo') return;
+        numRankedGames++;
         duration += match.duration;
         ['red', 'blue'].forEach(t => {
             barons += match[t].barons;
@@ -182,15 +185,17 @@ function calcDataInTier(tier){
         });
     });
 
-    duration /= matchArray.length;
-    barons /= matchArray.length;
-    dragons /= matchArray.length;
-    gold /= matchArray.length;
-    kills /= matchArray.length;
-    visionScore /= matchArray.length;
-    wardsPlaced /= matchArray.length;
-    wardsKilled /= matchArray.length;
-    towers /= matchArray.length;
+    if(numRankedGames > 0){
+        duration /= numRankedGames;
+        barons /= numRankedGames;
+        dragons /= numRankedGames;
+        gold /= numRankedGames;
+        kills /= numRankedGames;
+        visionScore /= numRankedGames;
+        wardsPlaced /= numRankedGames;
+        wardsKilled /= numRankedGames;
+        towers /= numRankedGames;
+    }
 
     return [ duration, barons, dragons, gold, kills, visionScore, wardsPlaced, wardsKilled, towers ];
 }
