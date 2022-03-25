@@ -82,7 +82,7 @@ function chartMultipleLines(datasets, title, element){
         '#fb2527',
         '#face6b',
     ];
-    const datasetLabels = [ 'duration', 'barons', 'dragons', 'gold', 'kills', 'visionScore', 'wardsPlaced', 'wardsKilled', 'towers' ];
+    const datasetLabels = [ 'Game Length', 'Barons', 'Dragons', 'Gold', 'Kills', 'Vision Score', 'Wards Placed', 'Wards Killed', 'Towers Destroyed' ];
     for(let i = 0; i < datasets.length; i++){
         chartDatasets.push({
             data: datasets[i],
