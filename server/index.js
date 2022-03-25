@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-import fs from 'fs';
+import fs, { stat } from 'fs';
 dotenv.config();
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
 const TIMEOUT = 100;
@@ -126,33 +126,38 @@ function calcStatsPerRank(){
         const data = calcDataInTier(TIERS[i]);
         statsPerRank.push(data);
     }
-    
+
+    // Format the array properly
+    const stats = [];
+
+    for(let i = 0; i < statsPerRank.length; i++){
+        for(let j = 0; j < statsPerRank[0].length; j++){
+            if(!stats[j]){
+                stats.push([statsPerRank[i][j]]);
+            }else{
+                stats[j].push(statsPerRank[i][j]);
+            }
+        }
+    }
+
     // Normalizing the data
     
     // Calculate maximum array
     const maxArray = [];
 
-    for(let i = 0; i < statsPerRank.length; i++){
-        for(let j = 0; j < statsPerRank[0].length; j++){
-            if(!maxArray[j]){
-                maxArray.push(statsPerRank[i][j]);
-            }else{
-                if(statsPerRank[i][j] > maxArray[j]){
-                    maxArray[j] = statsPerRank[i][j];
-                }
-            }
-        }
+    for(let i = 0; i < stats.length; i++){
+        maxArray.push(Math.max(...stats[i]));
     }
 
-    statsPerRank.forEach(stats => {
-        for(let i = 0; i < stats.length; i++){
-            stats[i] /= maxArray[i];
+    stats.forEach(stat => {
+        for(let i = 0; i < stat.length; i++){
+            stat[i] /= maxArray[i];
         }
     });
 
-    console.log(statsPerRank);
+    console.log(stats);
 
-    return statsPerRank;
+    return stats;
 }
 
 
