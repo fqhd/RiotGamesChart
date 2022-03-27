@@ -37,13 +37,13 @@ function chartMatchData(database){
 }
 
 function chartDatapointWinrates(database){
-    const labels = ['FirstBlood', 'Dragons', 'Barons'];
+    const labels = ['First Blood', 'More Dragons', 'More Barons'];
     const colors = [
         'rgba(75, 192, 192, 0.2)',
         'rgba(54, 162, 235, 0.2)',
         'rgba(153, 102, 255, 0.2)'
     ];
-    chartMultipleLines(database.matchWinrateStats, 'Winrate Per Datapoint', labels, colors, document.getElementById('ingame-stats'));
+    chartMultipleLines(database.matchWinrateStats, 'Team Winrate Per Datapoint', labels, colors, document.getElementById('ingame-stats'));
 }
 
 function appendToHTML(element){
