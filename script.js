@@ -16,7 +16,34 @@ async function main(){
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
     }
-    chartMultipleLines(database.averageStatsPerRank, 'Match Data(Normalized)', document.getElementById('ingame-stats'));
+    chartMatchData(database);
+    chartDatapointWinrates(database);
+}
+
+function chartMatchData(database){
+    const labels = [ 'Game Length', 'Barons', 'Dragons', 'Gold', 'Kills', 'Vision Score', 'Wards Placed', 'Wards Killed', 'Towers Destroyed' ];
+    const colors = [
+        '#543324',
+        '#a0603c',
+        '#526468',
+        '#a86c2d',
+        '#0bc45c',
+        '#131085',
+        '#ea2af9',
+        '#fb2527',
+        '#face6b',
+    ];
+    chartMultipleLines(database.averageStatsPerRank, 'Match Data(Normalized)', labels, colors, document.getElementById('ingame-stats'));
+}
+
+function chartDatapointWinrates(database){
+    const labels = ['FirstBlood', 'Dragons', 'Barons'];
+    const colors = [
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(153, 102, 255, 0.2)'
+    ];
+    chartMultipleLines(database.matchWinrateStats, 'Winrate Per Datapoint', labels, colors, document.getElementById('ingame-stats'));
 }
 
 function appendToHTML(element){
@@ -66,23 +93,11 @@ function chartLine(data, title, label, e){
     e.appendChild(canvas);
 }
 
-function chartMultipleLines(datasets, title, element){
+function chartMultipleLines(datasets, title, datasetLabels, colors, element){
     const canvas = document.createElement('canvas');
     canvas.style.marginTop = '70px';
     const ctx = canvas.getContext('2d');
     const chartDatasets = [];
-    const colors = [
-        '#543324',
-        '#a0603c',
-        '#526468',
-        '#a86c2d',
-        '#0bc45c',
-        '#131085',
-        '#ea2af9',
-        '#fb2527',
-        '#face6b',
-    ];
-    const datasetLabels = [ 'Game Length', 'Barons', 'Dragons', 'Gold', 'Kills', 'Vision Score', 'Wards Placed', 'Wards Killed', 'Towers Destroyed' ];
     for(let i = 0; i < datasets.length; i++){
         chartDatasets.push({
             data: datasets[i],
