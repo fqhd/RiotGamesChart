@@ -16,7 +16,7 @@ async function main(){
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
     }
-    chartMultipleLines(database.averageStatsPerRank, 'Match Data', document.getElementById('ingame-stats'));
+    chartMultipleLines(database.averageStatsPerRank, 'Match Data(Normalized)', document.getElementById('ingame-stats'));
 }
 
 function appendToHTML(element){
