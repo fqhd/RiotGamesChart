@@ -114,6 +114,9 @@ async function main(){
     if(!database.averageStatsPerRank){
         database.averageStatsPerRank = calcStatsPerRank();
     }
+    if(!database.matchWinrateStats){
+        database.matchWinrateStats = getAllDatapointWinrates();
+    }
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
 }
@@ -122,7 +125,7 @@ function calcStatsPerRank(){
     const statsPerRank = [];
     
     for(let i = 0; i < TIERS.length; i++){
-        const data = calcDataInTier(TIERS[i]);
+        const data = calcTierData(TIERS[i]);
         statsPerRank.push(data);
     }
 
@@ -152,8 +155,40 @@ function calcStatsPerRank(){
     return stats;
 }
 
+function getAllDatapointWinrates(){
+    const winratesList = [];
+    const datapoints = ['firstBlood', 'dragons', 'barons'];
+    datapoints.forEach(dp => {
+        winratesList.push(calcDatapointWinrate(dp));
+    });
+    return winratesList;
+}
 
-function calcDataInTier(tier){
+function calcDatapointWinrate(datapoint){
+    const winrates = [];
+    TIERS.forEach(tier => {
+        let wins = 0;
+        const matches = matchesData[tier.toLowerCase()];
+        if(matches.length){
+            matches.forEach(match => {
+                if(match['red'][datapoint] > match['blue'][datapoint]){
+                    if(match['red'].win){
+                        wins++;
+                    }
+                }else{
+                    if(match['blue'][datapoint].win){
+                        wins++;
+                    }
+                }
+            });
+            const winrate = wins / matches.length;
+            winrates.push(winrate);
+        }
+    });
+    return winrates;
+}
+
+function calcTierData(tier){
     const matchArray = matchesData[tier.toLowerCase()];
     let duration = 0;
     let barons = 0;
@@ -276,20 +311,16 @@ function getTeamData(match){
             firstTower: match.info.teams[i].objectives.tower.first,
             win: match.info.teams[i].win,
             id: teamID,
-            gold: 0,
-            wardsPlaced: 0,
-            wardsKilled: 0,
-            visionScore: 0,
         };
     }
 
     // Getting additional data from list of players and inserting the data into the corresponding team
     match.info.participants.forEach(p => {
         const playerTeamID = teamIDtoName(p.teamId);
-        teams[playerTeamID].gold += p.goldEarned;
-        teams[playerTeamID].wardsPlaced += p.wardsPlaced;
-        teams[playerTeamID].wardsKilled += p.wardsKilled;
-        teams[playerTeamID].visionScore += p.visionScore;
+        teams[playerTeamID].gold = p.goldEarned;
+        teams[playerTeamID].wardsPlaced = p.wardsPlaced;
+        teams[playerTeamID].wardsKilled = p.wardsKilled;
+        teams[playerTeamID].visionScore = p.visionScore;
     });
 
     return teams;
