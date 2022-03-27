@@ -111,10 +111,9 @@ async function main(){
     if(!database.gameModeDistribution){
         database.gameModeDistribution = calcGameModeDistribution();
     }
-    // if(!database.averageStatsPerRank){
+    if(!database.averageStatsPerRank){
         database.averageStatsPerRank = calcStatsPerRank();
-    // }
-    // console.log(database.averageStatsPerRank);
+    }
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
 }
