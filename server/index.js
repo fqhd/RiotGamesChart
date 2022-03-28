@@ -42,7 +42,6 @@ async function loadPlayers(){
             playerData[TIERS[i].toLowerCase()].push(accountInfo);
         }
     }
-    playerData.numPlayers = playerData[TIERS[0].toLowerCase()].length;
 }
 
 async function getNumGamesPerRank(){
@@ -58,11 +57,11 @@ async function getAccountLevelPerRank(){
     const data = [];
     for(let i = 0; i < TIERS.length; i++){
         let averageLevel = 0;
-        for(let j = 0; j < playerData.numPlayers; j++){
+        for(let j = 0; j < playerData[TIERS[i].toLowerCase()].length; j++){
             const accountLevel = playerData[TIERS[i].toLowerCase()][j].summonerLevel;
             averageLevel += accountLevel;
         }
-        averageLevel /= playerData.numPlayers;
+        averageLevel /= playerData[TIERS[i].toLowerCase()].length;
         data.push(averageLevel);
     }
     return data;
@@ -71,7 +70,7 @@ async function getAccountLevelPerRank(){
 async function fetchDataForMatches(){
     addRanksToObject(matchesData);
     for(let i = 0; i < TIERS.length; i++){ // Loop through tiers
-        for(let j = 0; j < playerData.numPlayers; j++){
+        for(let j = 0; j < playerData[TIERS[i].toLowerCase()].length; j++){
             const player = playerData[TIERS[i].toLowerCase()][j];
             const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`).catch(err => console.error('failed to fetch data'));
             const matches = await matchesResponse.json();
@@ -92,33 +91,16 @@ async function fetchDataForMatches(){
 }
 
 async function main(){
-    const string = fs.readFileSync('../database.json');
-    const database = JSON.parse(string);
+    const database = {};
 
     await loadPlayers();
     await fetchDataForMatches();
 
-    if(!database.numGamesPerRank){
-        database.numGamesPerRank = await getNumGamesPerRank().catch(err => {
-            console.error('failed to fetch number of games per rank');
-            console.error(err);
-        });
-    }
-    if(!database.accountLevelsPerRank){
-        database.accountLevelsPerRank = await getAccountLevelPerRank().catch(err => {
-            console.error('failed to fetch account levels per rank');
-            console.error(err);
-        });
-    }
-    if(!database.gameModeDistribution){
-        database.gameModeDistribution = calcGameModeDistribution();
-    }
-    if(!database.averageStatsPerRank){
-        database.averageStatsPerRank = calcStatsPerRank();
-    }
-    if(!database.matchWinrateStats){
-        database.matchWinrateStats = getAllDatapointWinrates();
-    }
+    database.numGamesPerRank = await getNumGamesPerRank();
+    database.accountLevelsPerRank = await getAccountLevelPerRank();
+    database.gameModeDistribution = calcGameModeDistribution();
+    database.averageStatsPerRank = calcStatsPerRank();
+    database.matchWinrateStats = getAllDatapointWinrates();
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
     console.log('num requests: ' + totalRequests);
@@ -152,8 +134,6 @@ function calcStatsPerRank(){
             stat[i] /= highestNum;
         }
     });
-
-    console.log(stats);
 
     return stats;
 }
