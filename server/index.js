@@ -1,13 +1,15 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-import fs, { stat } from 'fs';
+import fs from 'fs';
 dotenv.config();
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
-const TIMEOUT = 100;
+const TIMEOUT = 1500;
 let matchesData = {};
 let playerData = {};
+let totalRequests = 0;
 
 function apiCall(url){
+    totalRequests++;
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
            const data = await fetch(url).catch(err => reject(err));
@@ -33,14 +35,14 @@ async function loadPlayers(){
     for(let i = 0; i < TIERS.length; i++){
         const response = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${TIERS[i]}/I?page=1&api_key=${process.env.RIOT_KEY}`);
         const players = await response.json();
-        for(let j = 0; j < 1; j++){
+        for(let j = 0; j < players.length; j++){
             const accountID = players[j].summonerId;
             const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`);
             const accountInfo = await accInfoResponse.json();
             playerData[TIERS[i].toLowerCase()].push(accountInfo);
         }
     }
-    playerData.numPlayers = 1;
+    playerData.numPlayers = playerData[TIERS[0].toLowerCase()].length;
 }
 
 async function getNumGamesPerRank(){
@@ -119,6 +121,7 @@ async function main(){
     }
 
     fs.writeFileSync('../database.json', JSON.stringify(database));
+    console.log('num requests: ' + totalRequests);
 }
 
 function calcStatsPerRank(){
