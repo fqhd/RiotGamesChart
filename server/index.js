@@ -72,7 +72,7 @@ async function fetchDataForMatches(){
     for(let i = 0; i < TIERS.length; i++){ // Loop through tiers
         for(let j = 0; j < playerData[TIERS[i].toLowerCase()].length; j++){
             const player = playerData[TIERS[i].toLowerCase()][j];
-            const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`).catch(err => console.error('failed to fetch data'));
+            const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`);
             const matches = await matchesResponse.json();
             const matchID = matches[0];
             const matchResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${process.env.RIOT_KEY}`);
