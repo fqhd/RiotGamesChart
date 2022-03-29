@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 dotenv.config();
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
-const TIMEOUT = 1500;
+const TIMEOUT = 1300;
 let matchesData = {};
 let playerData = {};
 let totalRequests = 0;
@@ -35,7 +35,7 @@ async function loadPlayers(){
     for(let i = 0; i < TIERS.length; i++){
         const response = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${TIERS[i]}/I?page=1&api_key=${process.env.RIOT_KEY}`);
         const players = await response.json();
-        for(let j = 0; j < players.length; j++){
+        for(let j = 0; j < 20; j++){
             const accountID = players[j].summonerId;
             const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`);
             const accountInfo = await accInfoResponse.json();
@@ -149,25 +149,31 @@ function getAllDatapointWinrates(){
 
 function calcDatapointWinrate(datapoint){
     const winrates = [];
-    TIERS.forEach(tier => {
-        let wins = 0;
+    for(let i = 0; i < TIERS.length; i++){
+        const tier = TIERS[i].toLowerCase();
         const matches = matchesData[tier.toLowerCase()];
+
         if(matches.length){
+            let wins = 0;
             matches.forEach(match => {
-                if(match['red'][datapoint] > match['blue'][datapoint]){
-                    if(match['red'].win){
-                        wins++;
-                    }
-                }else{
-                    if(match['blue'][datapoint].win){
-                        wins++;
+                if(match.gameMode == 'Ranked Solo/Duo'){
+                    if(match['red'][datapoint] > match['blue'][datapoint]){
+                        if(match['red'].win){
+                            wins++;
+                        }
+                    }else{
+                        if(match['blue'][datapoint].win){
+                            wins++;
+                        }
                     }
                 }
             });
             const winrate = wins / matches.length;
             winrates.push(winrate);
+        }else{
+            winrates.push(0);
         }
-    });
+    }
     return winrates;
 }
 
@@ -282,10 +288,9 @@ function getTeamData(match){
     const teams = {};
 
     // Getting team data from array of teams themselves
-    
     for(let i = 0; i < match.info.teams.length; i++){
-        const teamID = teamIDtoName(match.info.teams[i].teamId);
-        teams[teamID] = {
+        const teamName = teamIDtoName(match.info.teams[i].teamId);
+        teams[teamName] = {
             barons: match.info.teams[i].objectives.baron.kills,
             dragons: match.info.teams[i].objectives.dragon.kills,
             kills: match.info.teams[i].objectives.champion.kills,
@@ -293,17 +298,20 @@ function getTeamData(match){
             towers: match.info.teams[i].objectives.tower.kills,
             firstTower: match.info.teams[i].objectives.tower.first,
             win: match.info.teams[i].win,
-            id: teamID,
+            gold: 0,
+            wardsPlaced: 0,
+            wardsKilled: 0,
+            visionScore: 0
         };
     }
 
     // Getting additional data from list of players and inserting the data into the corresponding team
     match.info.participants.forEach(p => {
         const playerTeamID = teamIDtoName(p.teamId);
-        teams[playerTeamID].gold = p.goldEarned;
-        teams[playerTeamID].wardsPlaced = p.wardsPlaced;
-        teams[playerTeamID].wardsKilled = p.wardsKilled;
-        teams[playerTeamID].visionScore = p.visionScore;
+        teams[playerTeamID].gold += p.goldEarned;
+        teams[playerTeamID].wardsPlaced += p.wardsPlaced;
+        teams[playerTeamID].wardsKilled += p.wardsKilled;
+        teams[playerTeamID].visionScore += p.visionScore;
     });
 
     return teams;
