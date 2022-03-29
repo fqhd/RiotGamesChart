@@ -39,9 +39,9 @@ function chartMatchData(database){
 function chartDatapointWinrates(database){
     const labels = ['First Blood', 'More Dragons', 'More Barons'];
     const colors = [
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(153, 102, 255, 0.2)'
+        'rgba(75, 192, 192, 1.8)',
+        'rgba(54, 162, 235, 1.8)',
+        'rgba(153, 102, 255, 1.8)'
     ];
     chartMultipleLines(database.matchWinrateStats, 'Team Winrate Per Datapoint', labels, colors, document.getElementById('ingame-stats'));
 }
