@@ -318,7 +318,7 @@ function getTeamData(match){
 }
 
 function getMatchType(match){
-	if(!match.info.queueId){
+	if(!match.info){
 		console.log(match);
 	}else{
 		switch(match.info.queueId){
