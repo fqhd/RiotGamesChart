@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 dotenv.config();
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
-const TIMEOUT = 1300;
+const TIMEOUT = 1500;
 let matchesData = {};
 let playerData = {};
 let totalRequests = 0;
@@ -318,24 +318,28 @@ function getTeamData(match){
 }
 
 function getMatchType(match){
-    switch(match.info.queueId){
-        case 400: // Draft Pick
-            return "Normal Draft Pick";
-        break;
-        case 420: // Ranked Soloduo
-            return "Ranked Solo/Duo";
-        break;
-        case 430: // Blind Pick
-            return "Normal Blind Pick";
-        break;
-        case 450: // ARAM
-            return "ARAM";
-        break;
-        case 440: // Ranked Flex
-            return "Ranked Flex";
-        break;
-    }
-    return "Other";
+	if(!match.info.queueId){
+		console.log(match);
+	}else{
+		switch(match.info.queueId){
+			case 400: // Draft Pick
+				return "Normal Draft Pick";
+			break;
+			case 420: // Ranked Soloduo
+				return "Ranked Solo/Duo";
+			break;
+			case 430: // Blind Pick
+				return "Normal Blind Pick";
+			break;
+			case 450: // ARAM
+				return "ARAM";
+			break;
+			case 440: // Ranked Flex
+				return "Ranked Flex";
+			break;
+		}
+	}
+	return "Other";
 }
 
 main();
