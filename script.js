@@ -11,7 +11,7 @@ async function main(){
     const database = await response.json();
 
     // Charts
-    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank', 'Average Rank', document.getElementById('col-1'));
+    chartLine(database.numGamesPerRank, 'Average Games Played Per Rank', 'Average Games', document.getElementById('col-1'));
     chartLine(database.accountLevelsPerRank, 'Average Account Level Per Rank', 'Average Level', document.getElementById('col-2'));
     for(const tier in database.gameModeDistribution){
         chartDonut(database.gameModeDistribution[tier], tier.toUpperCase());
