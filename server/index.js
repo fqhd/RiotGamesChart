@@ -8,7 +8,7 @@ let matchesData = {};
 let playerData = {};
 let totalRequests = 0;
 
-function apiCall(url){
+function rawAPICall(url){
     totalRequests++;
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
@@ -16,6 +16,20 @@ function apiCall(url){
            resolve(data);
         }, TIMEOUT);
     });
+}
+
+async function apiCall(url){
+	let badData = false;
+	while(true){
+		badData = false;
+		const response = await rawAPICall(url).catch(err => {
+			badData = true;
+			console.log(err);
+		});
+		if(!badData){
+			return response;
+		}
+	}
 }
 
 async function getRankData(tier){
