@@ -175,20 +175,23 @@ function calcDatapointWinrate(datapoint){
 
         if(matches.length){
             let wins = 0;
+			let numSkippedGames = 0;
             matches.forEach(match => {
                 if(match.gameMode == 'Ranked Solo/Duo'){
                     if(match['red'][datapoint] > match['blue'][datapoint]){
                         if(match['red'].win){
                             wins++;
                         }
-                    }else{
-                        if(match['blue'][datapoint].win){
+                    }else if(match['blue'][datapoint] > match['red'][datapoint]){
+                        if(match['blue'].win){
                             wins++;
                         }
-                    }
+                    }else{
+						numSkippedGames++;
+					}
                 }
             });
-            const winrate = wins / matches.length;
+            const winrate = wins / (matches.length - numSkippedGames);
             winrates.push(winrate);
         }else{
             winrates.push(0);
