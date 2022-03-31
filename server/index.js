@@ -14,7 +14,6 @@ function apiCall(url){
         setTimeout(async () => {
            const data = await fetch(url).catch(err => reject(err));
            resolve(data);
-           console.log('request...');
         }, TIMEOUT);
     });
 }
@@ -39,6 +38,7 @@ async function loadPlayers(){
 			console.log(err);
 		});
         const players = await response.json();
+		console.log('num players: ' + players.length);
         for(let j = 0; j < players.length; j++){
             const accountID = players[j].summonerId;
             const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`).catch(err => {
