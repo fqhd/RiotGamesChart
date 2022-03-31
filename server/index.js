@@ -20,7 +20,9 @@ function apiCall(url){
 }
 
 async function getRankData(tier){
-    const fetchResponse = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${tier}/I?page=1&api_key=${process.env.RIOT_KEY}`);
+    const fetchResponse = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${tier}/I?page=1&api_key=${process.env.RIOT_KEY}`).catch(err => {
+		console.log(err);
+	});
     const jsonData = await fetchResponse.json();
     let totalGamesPlayed = 0;
     jsonData.forEach(e => {
@@ -33,11 +35,15 @@ async function getRankData(tier){
 async function loadPlayers(){
     addRanksToObject(playerData);
     for(let i = 0; i < TIERS.length; i++){
-        const response = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${TIERS[i]}/I?page=1&api_key=${process.env.RIOT_KEY}`);
+        const response = await apiCall(`https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/${TIERS[i]}/I?page=1&api_key=${process.env.RIOT_KEY}`).catch(err => {
+			console.log(err);
+		});
         const players = await response.json();
         for(let j = 0; j < players.length; j++){
             const accountID = players[j].summonerId;
-            const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`);
+            const accInfoResponse = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/${accountID}?api_key=${process.env.RIOT_KEY}`).catch(err => {
+				console.log(err);
+			});
             const accountInfo = await accInfoResponse.json();
             playerData[TIERS[i].toLowerCase()].push(accountInfo);
         }
@@ -72,10 +78,10 @@ async function fetchDataForMatches(){
     for(let i = 0; i < TIERS.length; i++){ // Loop through tiers
         for(let j = 0; j < playerData[TIERS[i].toLowerCase()].length; j++){
             const player = playerData[TIERS[i].toLowerCase()][j];
-            const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`);
+            const matchesResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${player.puuid}/ids?start=0&count=1&api_key=${process.env.RIOT_KEY}`).catch(err => console.log(err));
             const matches = await matchesResponse.json();
             const matchID = matches[0];
-            const matchResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${process.env.RIOT_KEY}`);
+            const matchResponse = await apiCall(`https://europe.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${process.env.RIOT_KEY}`).catch(err => console.log(err));
             const match = await matchResponse.json();
             const gameMode = getMatchType(match);
             const duration = match.info.gameDuration;
@@ -151,7 +157,7 @@ function calcDatapointWinrate(datapoint){
     const winrates = [];
     for(let i = 0; i < TIERS.length; i++){
         const tier = TIERS[i].toLowerCase();
-        const matches = matchesData[tier.toLowerCase()];
+        const matches = matchesData[tier];
 
         if(matches.length){
             let wins = 0;
