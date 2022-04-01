@@ -33,7 +33,45 @@ function chartMatchData(database){
         '#fb2527',
         '#face6b',
     ];
-    chartMultipleLines(database.averageStatsPerRank, 'Match Data(Normalized)', labels, colors, document.getElementById('ingame-stats'));
+	const flippedData = flipArray(database.averageStatsPerRank); // I flip the array because the data in the array goes ranks per stat but I want stats per rank
+	for(let i = 0; i < TIERS.length; i++){
+		chartArea(flippedData[i], labels, TIERS[i], colors[i]);
+	}
+}
+
+function chartArea(dataset, labels, title, color){
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+    canvas.style.marginTop = '75px';
+	new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Normalized Dataset',
+                data: dataset,
+                backgroundColor: color + '4F',
+				borderColor: color,
+				pointBackgroundColor: color,
+				pointBorderColor: '#fff',
+				pointHoverBackgroundColor: '#fff',
+				pointHoverBorderColor: color,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size:  18
+                    }
+                },
+            }
+        }
+    });
+	appendToHTML(canvas);
 }
 
 function chartDatapointWinrates(database){
@@ -91,6 +129,20 @@ function chartLine(data, title, label, e){
         }
     });
     e.appendChild(canvas);
+}
+
+function flipArray(arr){
+	const result = [];
+	for(let i = 0; i < arr.length; i++){
+		for(let j = 0; j < arr[i].length; j++){
+			if(!result[j]){
+				result[j] = [arr[i][j]];
+			}else{
+				result[j].push(arr[i][j]);
+			}
+		}
+	}
+	return result;
 }
 
 function chartMultipleLines(datasets, title, datasetLabels, colors, element){
