@@ -68,7 +68,17 @@ function chartArea(dataset, labels, title, color){
                         size:  18
                     }
                 },
-            }
+				legend: {
+					display: false,
+				}
+            },
+			scales: {
+				'r': {
+					backgroundColor: '#FFF',
+					min: 0,
+					max: 1,
+				}
+			}
         }
     });
 	appendToHTML(canvas);
@@ -127,6 +137,9 @@ function chartLine(data, title, label, e){
                         size:  18
                     }
                 },
+				legend: {
+					display: false
+				}
             }
         }
     });
