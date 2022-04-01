@@ -77,9 +77,9 @@ function chartArea(dataset, labels, title, color){
 function chartDatapointWinrates(database){
     const labels = ['First Blood', 'More Dragons', 'More Barons'];
     const colors = [
-        'rgba(75, 192, 192, 1.8)',
-        'rgba(54, 162, 235, 1.8)',
-        'rgba(153, 102, 255, 1.8)'
+		'#4DC0C0',
+		'#36A2E0',
+		'#9966FF',
     ];
     chartMultipleLines(database.matchWinrateStats, 'Team Winrate Per Datapoint', labels, colors, document.getElementById('ingame-stats'));
 }
@@ -105,14 +105,16 @@ function chartLine(data, title, label, e){
         data: {
             labels: TIERS,
             datasets: [{
+			fill: true,
                 label: label,
                 data: data,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 1)',
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                ],
+				pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+				backgroundColor: 'rgba(54, 162, 235, 0.5)',
+				borderColor: 'rgba(54, 162, 235, 1)',
+				pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+				pointBorderColor: 'rgba(54, 162, 235, 1)',
+				pointHoverBackgroundColor: 'rgba(54, 162, 235, 1)',
+				pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             }]
         },
@@ -154,13 +156,14 @@ function chartMultipleLines(datasets, title, datasetLabels, colors, element){
         chartDatasets.push({
             data: datasets[i],
             label: datasetLabels[i],
-            fill: false,
-            backgroundColor: colors[i],
+            fill: true,
+            backgroundColor: colors[i] + '2F',
             borderColor: colors[i],
             pointBackgroundColor: colors[i],
             pointBorderColor: colors[i],
             pointHoverBackgroundColor: '#fff',
             pointHoverBorderColor: colors[i],
+			borderWidth: 2
         });
     }
     new Chart(ctx, {
