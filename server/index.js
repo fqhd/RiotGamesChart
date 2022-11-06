@@ -8,7 +8,7 @@ let currentKeyIndex = 0;
 let currentKey = API_KEYS[0];
 const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER'];
 const TIME_BETWEEN_REQUESTS = 1300 / API_KEYS.length;
-const NUM_PLAYERS_PER_RANK = 1;
+const NUM_PLAYERS_PER_RANK = 200;
 const MATCHES_PER_PLAYER = 10;
 
 function apiCall(url) {
@@ -38,6 +38,7 @@ async function getMatchesFromMatchIDs(matchIDs) {
 
 async function getPlayerMatches(summonerName) {
 	console.log('checking player: ' + summonerName);
+	summonerName = encodeURIComponent(summonerName);
 	try{
 		const response = await apiCall(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=`);
 		const player = await response.json();
@@ -48,22 +49,11 @@ async function getPlayerMatches(summonerName) {
 		return matches;
 	}catch(error){
 		console.log('Error, summoner not found: ' + summonerName);
+		return [];
 	}
 }
 
 async function main() {
-	const database = {
-		IRON: [],
-		BRONZE: [],
-		SILVER: [],
-		GOLD: [],
-		PLATINUM: [],
-		DIAMOND: [],
-		MASTER: [],
-		GRANDMASTER: [],
-		CHALLENGER: []
-	};
-
 	for(let i = 0; i < TIERS.length; i++){
 		let response;
 		if(i == 8) { // Challenger
@@ -82,14 +72,11 @@ async function main() {
 		console.log(`${TIERS[i]}: ${players.length} players`);
 		for (let j = 0; j < NUM_PLAYERS_PER_RANK; j++) {
 			currentKeyIndex++;
-			const matches = await getPlayerMatches(players[i].summonerName);
-			for(const match of matches){
-				database[TIERS[i]].push(match);
-			}
+			const matches = await getPlayerMatches(players[j].summonerName);
+			fs.writeFileSync('database/' + TIERS[i] + '/' + j + '.json', JSON.stringify(matches));
 			currentKey = API_KEYS[currentKeyIndex % API_KEYS.length];
 		}
 	}
-	fs.writeFileSync('database.json', JSON.stringify(database));
 }
 
 main();
